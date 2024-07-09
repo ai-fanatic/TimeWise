@@ -1,0 +1,117 @@
+<html><head><base href="https://websim.ai/todo-app/terms">
+<title>TimeLine - Terms of Service</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root {
+  --bg-color: #f0f4f8;
+  --text-color: #333;
+  --card-bg: white;
+  --header-bg: #3498db;
+  --link-color: #2980b9;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+header {
+  background: var(--header-bg);
+  color: white;
+  text-align: center;
+  padding: 1rem;
+}
+
+h1 {
+  margin-bottom: 1rem;
+}
+
+h2 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--header-bg);
+  padding-bottom: 0.5rem;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+ul, ol {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 2rem;
+  padding: 0.5rem 1rem;
+  background: var(--header-bg);
+  color: white;
+  border-radius: 4px;
+}
+
+.back-link:hover {
+  opacity: 0.9;
+  text-decoration: none;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>TimeLine Terms of Service</h1>
+</header>
+<div class="container">
+  <h2>1. Acceptance of Terms</h2>
+  <p>By accessing or using the TimeLine application ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of the terms, you may not access the Service.</p>
+
+  <h2>2. Description of Service</h2>
+  <p>TimeLine is a task management and productivity application that allows users to create, organize, and track their tasks and projects.</p>
+
+  <h2>3. User Accounts</h2>
+  <p>When you create an account with us, you must provide accurate, complete, and up-to-date information. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account on our Service.</p>
+
+  <h2>4. Content</h2>
+  <p>Our Service allows you to post, link, store, share and otherwise make available certain information, text, graphics, or other material ("Content"). You are responsible for the Content that you post to the Service, including its legality, reliability, and appropriateness.</p>
+
+  <h2>5. Intellectual Property</h2>
+  <p>The Service and its original content (excluding Content provided by users), features, and functionality are and will remain the exclusive property of TimeLine and its licensors.</p>
+
+  <h2>6. Links To Other Web Sites</h2>
+  <p>Our Service may contain links to third-party web sites or services that are not owned or controlled by TimeLine. TimeLine has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party web sites or services.</p>
+
+  <h2>7. Termination</h2>
+  <p>We may terminate or suspend access to our Service immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.</p>
+
+  <h2>8. Limitation of Liability</h2>
+  <p>In no event shall TimeLine, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service.</p>
+
+  <h2>9. Changes</h2>
+  <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material we will try to provide at least 30 days' notice prior to any new terms taking effect.</p>
+
+  <h2>10. Contact Us</h2>
+  <p>If you have any questions about these Terms, please contact us at <a href="/cdn-cgi/l/email-protection#50232520203f22241024393d353c393e357d3120207e333f3d"><span class="__cf_email__" data-cfemail="186b6d6868776a6c586c71757d7471767d35796868367b7775">[email&#160;protected]</span></a>.</p>
+
+  <a href="https://websim.ai/todo-app/register" class="back-link">Back to Registration</a>
+</div>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>

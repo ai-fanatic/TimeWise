@@ -1,0 +1,1345 @@
+<html><head><base >
+<title>TimeLine - Advanced Task Management App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root {
+  --bg-color: #f0f4f8;
+  --text-color: #333;
+  --card-bg: white;
+  --input-border: #ddd;
+  --btn-primary: #3498db;
+  --btn-success: #2ecc71;
+  --btn-secondary: #95a5a6;
+  --btn-danger: #e74c3c;
+  --tag-bg: #e74c3c;
+  --sidebar-bg: #ecf0f1;
+}
+
+body.dark-mode {
+  --bg-color: #1a1a2e;
+  --text-color: #e0e0e0;
+  --card-bg: #16213e;
+  --input-border: #4a4a4a;
+  --btn-primary: #4a69bd;
+  --btn-success: #38ada9;
+  --btn-secondary: #535c68;
+  --btn-danger: #b33939;
+  --tag-bg: #b33939;
+  --sidebar-bg: #2c3e50;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+.sidebar {
+  width: 250px;
+  background: var(--sidebar-bg);
+  padding: 20px;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  position: fixed;
+  height: 100vh;
+  left: -250px;
+  z-index: 1000;
+}
+.sidebar.open {
+  left: 0;
+}
+.sidebar-toggle {
+  background: var(--btn-secondary);
+  border: none;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  position: fixed;
+  left: 10px;
+  top: 10px;
+  z-index: 1001;
+}
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+  margin-left: 50px;
+  padding-top: 60px;
+}
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+h1, h2, h3 {
+  text-align: center;
+  color: var(--text-color);
+}
+.input-container, .todo-list, .completed-list, .backlog-list, .stats-container {
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+#todo-input, #tag-input, #time-input, #date-input, #priority-select, #recurrence-select, #schedule-time {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  background: var(--card-bg);
+  color: var(--text-color);
+}
+#todo-input {
+  height: 100px;
+  resize: vertical;
+}
+#save-todo {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: var(--btn-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid var(--input-border);
+  position: relative;
+  cursor: move;
+}
+.todo-item:last-child {
+  border-bottom: none;
+}
+.todo-text {
+  flex-grow: 1;
+}
+.todo-tag {
+  background: var(--tag-bg);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  margin-right: 10px;
+}
+.todo-time, .todo-date, .todo-priority, .todo-scheduled-time {
+  font-size: 0.9em;
+  color: var(--text-color);
+  opacity: 0.7;
+  margin-right: 10px;
+}
+.play-btn, .done-btn, .edit-btn, .revert-btn, .move-to-today-btn, .visualize-btn {
+  padding: 5px 10px;
+  margin-left: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.play-btn {
+  background: var(--btn-success);
+  color: white;
+}
+.done-btn, .edit-btn, .revert-btn, .move-to-today-btn, .visualize-btn {
+  background: var(--btn-secondary);
+  color: white;
+}
+.right-pane {
+  position: fixed;
+  top: 0;
+  right: -250px;
+  width: 250px;
+  height: 100vh;
+  background: var(--sidebar-bg);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.right-pane.open {
+  right: 0;
+}
+.right-pane-toggle {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  background: var(--btn-secondary);
+  border: none;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  z-index: 1001;
+}
+.right-pane button {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: var(--btn-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.input-container {
+  transition: max-height 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+  max-height: 1000px;
+  opacity: 1;
+  visibility: visible;
+  overflow: hidden;
+}
+.input-container.hidden {
+  max-height: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+.timer-gui {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid var(--btn-success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
+  background: var(--card-bg);
+  color: var(--text-color);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  transition: right 0.3s ease;
+}
+.timer-gui.right-pane-open {
+  right: 270px;
+}
+.toggle-input-container {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: var(--btn-secondary);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+.app-container.mobile-view .main-content {
+  margin-left: 0;
+}
+.app-container.mobile-view .sidebar {
+  width: 100%;
+  left: -100%;
+}
+.app-container.mobile-view .sidebar.open {
+  left: 0;
+}
+.time-adjust {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+}
+.time-adjust button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  padding: 0;
+  color: var(--text-color);
+}
+.tab-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.tab {
+  padding: 10px 20px;
+  background: var(--btn-secondary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin: 0 5px;
+  border-radius: 4px;
+}
+.tab.active {
+  background: var(--btn-primary);
+}
+.chart-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+.chart {
+  width: 100%;
+  height: 300px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+.stats-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--card-bg);
+  padding: 10px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+.stat-item {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.stat-emoji {
+  font-size: 1.5em;
+  margin-right: 5px;
+  cursor: help;
+}
+.stat-tooltip {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: -50px;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.7s;
+}
+.stat-emoji:hover + .stat-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+.eisenhower-matrix-toggle {
+  cursor: pointer;
+  margin-left: 10px;
+}
+.eisenhower-matrix {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  z-index: 1010;
+}
+.eisenhower-matrix.show {
+  display: block;
+}
+.eisenhower-quadrant {
+  width: 200px;
+  height: 200px;
+  float: left;
+  border: 1px solid var(--input-border);
+  box-sizing: border-box;
+  padding: 10px;
+  text-align: center;
+}
+.eisenhower-quadrant h3 {
+  margin-top: 0;
+  font-size: 1em;
+}
+.eisenhower-quadrant p {
+  font-size: 2em;
+  margin: 20px 0;
+}
+#visualize-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: var(--btn-primary);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+@media (max-width: 768px) {
+  .right-pane {
+    width: 100%;
+    right: -100%;
+  }
+  .right-pane.open {
+    right: 0;
+  }
+  .timer-gui.right-pane-open {
+    right: 20px;
+    top: auto;
+    bottom: 20px;
+  }
+  .toggle-input-container {
+    top: 60px;
+  }
+  .stats-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .stat-item {
+    margin-bottom: 5px;
+  }
+  .eisenhower-matrix {
+    width: 90%;
+    height: auto;
+  }
+  .eisenhower-quadrant {
+    width: 50%;
+    height: 150px;
+  }
+}
+
+/* New styles for mobile view */
+.app-container.mobile-view .main-content {
+  padding: 10px;
+}
+
+.app-container.mobile-view .container {
+  max-width: 100%;
+}
+
+.app-container.mobile-view .todo-item {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 15px;
+}
+
+.app-container.mobile-view .todo-text {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.app-container.mobile-view .todo-tag,
+.app-container.mobile-view .todo-time,
+.app-container.mobile-view .todo-date,
+.app-container.mobile-view .todo-priority,
+.app-container.mobile-view .todo-scheduled-time {
+  margin-bottom: 5px;
+}
+
+.app-container.mobile-view .play-btn,
+.app-container.mobile-view .done-btn,
+.app-container.mobile-view .edit-btn,
+.app-container.mobile-view .revert-btn,
+.app-container.mobile-view .move-to-today-btn {
+  margin-left: 0;
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+}
+
+.app-container.mobile-view .time-adjust {
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.app-container.mobile-view .time-adjust button {
+  padding: 5px 10px;
+  font-size: 1.5em;
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="stats-bar">
+  <div class="stat-item">
+    <span class="stat-emoji">⏳</span>
+    <span class="stat-tooltip">Time Remaining Today</span>
+    <span id="total-time-remaining">0 min</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-emoji">⏱️</span>
+    <span class="stat-tooltip">Total Time Worked Today</span>
+    <span id="total-time-worked">0 min</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-emoji">🔥</span>
+    <span class="stat-tooltip">Time Without Break</span>
+    <span id="time-without-break">0 min</span>
+  </div>
+  <div class="stat-item">
+    <span class="eisenhower-matrix-toggle" id="eisenhower-matrix-toggle">📊</span>
+  </div>
+</div>
+
+<div class="app-container">
+  <aside class="sidebar" id="sidebar">
+    <h2>Filters</h2>
+    <h3>Tags</h3>
+    <div id="tag-list"></div>
+    <h3>Priority</h3>
+    <div id="priority-list"></div>
+  </aside>
+  <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
+  <button class="toggle-input-container" id="toggle-input-container">📝</button>
+  <main class="main-content">
+    <div class="container">
+      <h1>TimeLine</h1>
+      
+      <div class="input-container" id="input-container">
+        <textarea id="todo-input" placeholder="Enter your task here..."></textarea>
+        <input type="text" id="tag-input" placeholder="Tags (comma separated)" required>
+        <input type="text" id="time-input" placeholder="Time allocated (minutes)">
+        <input type="date" id="date-input">
+        <input type="time" id="schedule-time" placeholder="Schedule time (optional)">
+        <select id="priority-select" required>
+          <option value="">Select Priority</option>
+          <option value="urgent">Urgent</option>
+          <option value="not urgent">Not Urgent</option>
+          <option value="important">Important</option>
+          <option value="less important">Less Important</option>
+        </select>
+        <select id="recurrence-select">
+          <option value="">No Recurrence</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+        <button id="save-todo">Save Task</button>
+      </div>
+
+      <div class="tab-container">
+        <button class="tab active" data-tab="today">Today's Tasks</button>
+        <button class="tab" data-tab="backlog">Backlog Tasks</button>
+        <button class="tab" data-tab="completed">Completed Tasks</button>
+      </div>
+
+      <div id="today-tasks" class="tab-content">
+        <h2>Today's Tasks</h2>
+        <div class="todo-list" id="todo-list">
+          <!-- Active todo items will be dynamically added here -->
+        </div>
+      </div>
+
+      <div id="backlog-tasks" class="tab-content" style="display: none;">
+        <h2>Backlog Tasks</h2>
+        <div class="backlog-list" id="backlog-list">
+          <!-- Backlog todo items will be dynamically added here -->
+        </div>
+      </div>
+
+      <div id="completed-tasks" class="tab-content" style="display: none;">
+        <h2>Completed Tasks</h2>
+        <div class="completed-list" id="completed-list">
+          <!-- Completed todo items will be dynamically added here -->
+        </div>
+      </div>
+
+      <div id="visualization-container" style="display: none;">
+        <h2>Task Visualizations</h2>
+        <div class="chart-container">
+          <div class="chart">
+            <canvas id="bar-chart"></canvas>
+          </div>
+          <div class="chart">
+            <canvas id="pie-chart"></canvas>
+          </div>
+          <div class="chart">
+            <canvas id="productivity-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="right-pane" id="right-pane">
+  <button id="dark-mode-toggle">🌓 Toggle Dark Mode</button>
+  <button id="sign-out-btn">Sign Out</button>
+  <button id="clear-tasks-btn">Clear Tasks</button>
+  <button id="upload-btn">📤 Upload</button>
+  <button id="download-btn">📥 Download</button>
+  <button id="aspect-ratio-toggle">🖥️ Toggle View</button>
+</div>
+<button class="right-pane-toggle" id="right-pane-toggle">Options</button>
+
+<input type="file" id="file-input" style="display: none;">
+<div id="timer-container"></div>
+
+<button id="visualize-btn">Visualize Data</button>
+
+<div class="eisenhower-matrix" id="eisenhower-matrix">
+  <div class="eisenhower-quadrant" id="urgent-important">
+    <h3>Urgent & Important</h3>
+    <p>0</p>
+  </div>
+  <div class="eisenhower-quadrant" id="not-urgent-important">
+    <h3>Not Urgent & Important</h3>
+    <p>0</p>
+  </div>
+  <div class="eisenhower-quadrant" id="urgent-not-important">
+    <h3>Urgent & Not Important</h3>
+    <p>0</p>
+  </div>
+  <div class="eisenhower-quadrant" id="not-urgent-not-important">
+    <h3>Not Urgent & Not Important</h3>
+    <p>0</p>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const todoInput = document.getElementById('todo-input');
+  const tagInput = document.getElementById('tag-input');
+  const timeInput = document.getElementById('time-input');
+  const dateInput = document.getElementById('date-input');
+  const scheduleTimeInput = document.getElementById('schedule-time');
+  const prioritySelect = document.getElementById('priority-select');
+  const recurrenceSelect = document.getElementById('recurrence-select');
+  const saveButton = document.getElementById('save-todo');
+  const todoList = document.getElementById('todo-list');
+  const backlogList = document.getElementById('backlog-list');
+  const completedList = document.getElementById('completed-list');
+  const darkModeToggle = document.getElementById('dark-mode-toggle');
+  const signOutBtn = document.getElementById('sign-out-btn');
+  const clearTasksBtn = document.getElementById('clear-tasks-btn');
+  const uploadBtn = document.getElementById('upload-btn');
+  const downloadBtn = document.getElementById('download-btn');
+  const fileInput = document.getElementById('file-input');
+  const tagList = document.getElementById('tag-list');
+  const priorityList = document.getElementById('priority-list');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const timerContainer = document.getElementById('timer-container');
+  const aspectRatioToggle = document.getElementById('aspect-ratio-toggle');
+  const appContainer = document.querySelector('.app-container');
+  const rightPane = document.getElementById('right-pane');
+  const rightPaneToggle = document.getElementById('right-pane-toggle');
+  const inputContainer = document.getElementById('input-container');
+  const toggleInputContainer = document.getElementById('toggle-input-container');
+  const tabs = document.querySelectorAll('.tab');
+  const tabContents = document.querySelectorAll('.tab-content');
+  const visualizeBtn = document.getElementById('visualize-btn');
+  const visualizationContainer = document.getElementById('visualization-container');
+  const totalTimeRemainingSpan = document.getElementById('total-time-remaining');
+  const totalTimeWorkedSpan = document.getElementById('total-time-worked');
+  const timeWithoutBreakSpan = document.getElementById('time-without-break');
+  const eisenhowerMatrixToggle = document.getElementById('eisenhower-matrix-toggle');
+  const eisenhowerMatrix = document.getElementById('eisenhower-matrix');
+
+  let todos = JSON.parse(localStorage.getItem('todos')) || [];
+  let isDarkMode = localStorage.getItem('darkMode') === 'true';
+  let selectedTags = new Set();
+  let selectedPriorities = new Set();
+  let activeTimer = null;
+  let activeTimerIndex = null;
+  let startTime = null;
+  let isMobileView = localStorage.getItem('isMobileView') === 'true';
+  let lastBreakTime = Date.now();
+
+  const priorityEmojis = {
+    'urgent': '🚨',
+    'not urgent': '⏳',
+    'important': '⭐',
+    'less important': '🔽'
+  };
+
+  function saveTodos() {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }
+
+  function renderTodos() {
+    todoList.innerHTML = '';
+    backlogList.innerHTML = '';
+    completedList.innerHTML = '';
+    const today = new Date().toISOString().split('T')[0];
+    
+    todos.forEach((todo, index) => {
+      if ((selectedTags.size === 0 || todo.tags.split(',').some(tag => selectedTags.has(tag.trim()))) &&
+          (selectedPriorities.size === 0 || selectedPriorities.has(todo.priority))) {
+        const todoItem = createTodoItem(todo, index);
+        
+        if (todo.completed) {
+          completedList.appendChild(todoItem);
+        } else if (todo.date > today) {
+          const moveToTodayBtn = document.createElement('button');
+          moveToTodayBtn.className = 'move-to-today-btn';
+          moveToTodayBtn.textContent = 'Move to Today';
+          moveToTodayBtn.dataset.index = index;
+          todoItem.appendChild(moveToTodayBtn);
+          backlogList.appendChild(todoItem);
+        } else {
+          todoList.appendChild(todoItem);
+        }
+      }
+    });
+
+    renderTags();
+    renderPriorities();
+    setupDragAndDrop();
+    updateTaskStatistics();
+    updateEisenhowerMatrix();
+  }
+
+  function createTodoItem(todo, index) {
+    const todoItem = document.createElement('div');
+    todoItem.className = 'todo-item';
+    todoItem.draggable = true;
+    todoItem.dataset.index = index;
+    todoItem.innerHTML = `
+      <span class="todo-priority">${priorityEmojis[todo.priority] || ''}</span>
+      <span class="todo-tag">${todo.tags}</span>
+      <span class="todo-text">${todo.text}</span>
+      <span class="todo-time" data-index="${index}">${todo.time} min</span>
+      <div class="time-adjust">
+        <button class="time-increase" data-index="${index}">▲</button>
+        <button class="time-decrease" data-index="${index}">▼</button>
+      </div>
+      <span class="todo-date">${todo.date}</span>
+      ${todo.scheduleTime ? `<span class="todo-scheduled-time">⏰ ${todo.scheduleTime}</span>` : ''}
+      ${todo.recurrence ? `<span class="todo-recurrence">${todo.recurrence}</span>` : ''}
+      ${!todo.completed ? `
+        <button class="play-btn" data-index="${index}">${index === activeTimerIndex ? 'Pause' : 'Play'}</button>
+        <button class="done-btn" data-index="${index}">Done</button>
+        <button class="edit-btn" data-index="${index}">Edit</button>
+      ` : `
+        <span class="todo-time-taken">Time taken: ${todo.timeTaken} min</span>
+        <button class="revert-btn" data-index="${index}">Revert</button>
+      `}
+    `;
+    return todoItem;
+  }
+
+  function renderTags() {
+    const tags = new Set(todos.flatMap(todo => todo.tags.split(',')).map(tag => tag.trim()));
+    tagList.innerHTML = Array.from(tags).map(tag => `
+      <div class="tag-item">
+        <input type="checkbox" class="tag-checkbox" id="tag-${tag}" ${selectedTags.has(tag) ? 'checked' : ''}>
+        <label for="tag-${tag}">${tag}</label>
+      </div>
+    `).join('');
+
+    document.querySelectorAll('.tag-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('change', () => {
+        const tag = checkbox.id.replace('tag-', '');
+        if (checkbox.checked) {
+          selectedTags.add(tag);
+        } else {
+          selectedTags.delete(tag);
+        }
+        renderTodos();
+      });
+    });
+  }
+
+  function renderPriorities() {
+    const priorities = ['urgent', 'not urgent', 'important', 'less important'];
+    priorityList.innerHTML = priorities.map(priority => `
+      <div class="priority-item">
+        <input type="checkbox" class="priority-checkbox" id="priority-${priority}" ${selectedPriorities.has(priority) ? 'checked' : ''}>
+        <label for="priority-${priority}">${priorityEmojis[priority]} ${priority}</label>
+      </div>
+    `).join('');
+
+    document.querySelectorAll('.priority-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('change', () => {
+        const priority = checkbox.id.replace('priority-', '');
+        if (checkbox.checked) {
+          selectedPriorities.add(priority);
+        } else {
+          selectedPriorities.delete(priority);
+        }
+        renderTodos();
+      });
+    });
+  }
+
+  saveButton.addEventListener('click', () => {
+    const text = todoInput.value.trim();
+    const tags = tagInput.value.trim();
+    const time = parseInt(timeInput.value) || 5;
+    const date = dateInput.value || new Date().toISOString().split('T')[0];
+    const scheduleTime = scheduleTimeInput.value;
+    const priority = prioritySelect.value;
+    const recurrence = recurrenceSelect.value;
+
+    if (text && tags && priority) {
+      todos.push({ text, tags, time, date, scheduleTime, priority, recurrence, completed: false });
+      saveTodos();
+      renderTodos();
+      todoInput.value = '';
+      tagInput.value = '';
+      timeInput.value = '';
+      dateInput.value = '';
+      scheduleTimeInput.value = '';
+      prioritySelect.value = '';
+      recurrenceSelect.value = '';
+    } else {
+      alert('Please fill in all required fields before saving the task.');
+    }
+  });
+
+  todoList.addEventListener('click', handleTodoAction);
+  backlogList.addEventListener('click', handleTodoAction);
+  completedList.addEventListener('click', handleTodoAction);
+
+  function handleTodoAction(e) {
+    const index = e.target.dataset.index;
+    if (!index) return;
+
+    const todo = todos[index];
+
+    if (e.target.classList.contains('play-btn')) {
+      if (index === activeTimerIndex) {
+        pauseTimer(e.target);
+      } else {
+        startTimer(todo, index, e.target);
+      }
+    } else if (e.target.classList.contains('done-btn')) {
+      completeTodo(index);
+    } else if (e.target.classList.contains('edit-btn')) {
+      editTodo(index);
+    } else if (e.target.classList.contains('revert-btn')) {
+      revertTodo(index);
+    } else if (e.target.classList.contains('time-increase')) {
+      adjustTime(index, 5);
+    } else if (e.target.classList.contains('time-decrease')) {
+      adjustTime(index, -5);
+    } else if (e.target.classList.contains('move-to-today-btn')) {
+      moveToToday(index);
+    }
+  }
+
+  function startTimer(todo, index, button) {
+    if (activeTimer) {
+      clearInterval(activeTimer);
+      document.querySelector(`.play-btn[data-index="${activeTimerIndex}"]`).textContent = 'Play';
+    }
+
+    let timeLeft = todo.time * 60;
+    const timerGui = document.createElement('div');
+    timerGui.className = 'timer-gui';
+    timerContainer.innerHTML = '';
+    timerContainer.appendChild(timerGui);
+
+    activeTimerIndex = index;
+    button.textContent = 'Pause';
+    startTime = Date.now();
+    activeTimer = setInterval(() => {
+      timeLeft--;
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timerGui.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      
+      if (timeLeft <= 0) {
+        clearInterval(activeTimer);
+        alert(`Time's up for task: ${todo.text}`);
+        timerGui.remove();
+        activeTimer = null;
+        activeTimerIndex = null;
+        button.textContent = 'Play';
+      }
+
+      updateTaskStatistics();
+    }, 1000);
+
+    adjustTimerPosition();
+  }
+
+  function pauseTimer(button) {
+    clearInterval(activeTimer);
+    activeTimer = null;
+    activeTimerIndex = null;
+    timerContainer.innerHTML = '';
+    button.textContent = 'Play';
+    lastBreakTime = Date.now();
+    updateTaskStatistics();
+  }
+
+  function completeTodo(index) {
+    if (activeTimerIndex === index) {
+      pauseTimer(document.querySelector(`.play-btn[data-index="${index}"]`));
+    }
+
+    const todo = todos[index];
+    const timeTaken = Math.round((Date.now() - startTime) / 60000);
+    todo.completed = true;
+    todo.timeTaken = timeTaken;
+
+    const todoItem = document.querySelector(`.todo-item[data-index="${index}"]`);
+    todoItem.classList.add('task-done-animation');
+    
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+
+    setTimeout(() => {
+      saveTodos();
+      renderTodos();
+    }, 500);
+
+    if (todo.recurrence) {
+      createRecurringTask(todo);
+    }
+  }
+
+  function createRecurringTask(completedTodo) {
+    const newDate = new Date(completedTodo.date);
+    switch (completedTodo.recurrence) {
+      case 'daily':
+        newDate.setDate(newDate.getDate() + 1);
+        break;
+      case 'weekly':
+        newDate.setDate(newDate.getDate() + 7);
+        break;
+      case 'monthly':
+        newDate.setMonth(newDate.getMonth() + 1);
+        break;
+    }
+
+    const newTodo = {
+      ...completedTodo,
+      date: newDate.toISOString().split('T')[0],
+      completed: false
+    };
+    delete newTodo.timeTaken;
+
+    todos.push(newTodo);
+    saveTodos();
+  }
+
+  function editTodo(index) {
+    const todo = todos[index];
+    todoInput.value = todo.text;
+    tagInput.value = todo.tags;
+    timeInput.value = todo.time;
+    dateInput.value = todo.date;
+    scheduleTimeInput.value = todo.scheduleTime || '';
+    prioritySelect.value = todo.priority;
+    recurrenceSelect.value = todo.recurrence || '';
+    todos.splice(index, 1);
+    saveTodos();
+    renderTodos();
+  }
+
+  function revertTodo(index) {
+    todos[index].completed = false;
+    delete todos[index].timeTaken;
+    saveTodos();
+    renderTodos();
+  }
+
+  function adjustTime(index, amount) {
+    todos[index].time = Math.max(5, todos[index].time + amount);
+    saveTodos();
+    renderTodos();
+  }
+
+  function moveToToday(index) {
+    const today = new Date().toISOString().split('T')[0];
+    todos[index].date = today;
+    saveTodos();
+    renderTodos();
+  }
+
+  function toggleDarkMode() {
+    isDarkMode = !isDarkMode;
+    document.body.classList.toggle('dark-mode', isDarkMode);
+    localStorage.setItem('darkMode', isDarkMode);
+  }
+
+  darkModeToggle.addEventListener('click', toggleDarkMode);
+
+  signOutBtn.addEventListener('click', () => {
+    alert('Signing out...');
+    // Here you would typically clear user session, redirect to login page, etc.
+  });
+
+  clearTasksBtn.addEventListener('click', () => {
+    if (confirm('Are you sure you want to clear all tasks? This action cannot be undone.')) {
+      todos = [];
+      saveTodos();
+      renderTodos();
+    }
+  });
+
+  uploadBtn.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const uploadedTodos = JSON.parse(e.target.result);
+          todos = [...todos, ...uploadedTodos];
+          saveTodos();
+          renderTodos();
+          alert('Tasks uploaded and appended successfully!');
+        } catch (error) {
+          alert('Error uploading tasks. Please make sure the file is in the correct format.');
+        }
+      };
+      reader.readAsText(file);
+    }
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    const tasksJson = JSON.stringify(todos, null, 2);
+    const blob = new Blob([tasksJson], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'tasks_backup.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+  });
+
+  // Close sidebar when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+      sidebar.classList.remove('open');
+    }
+  });
+
+  aspectRatioToggle.addEventListener('click', () => {
+    isMobileView = !isMobileView;
+    appContainer.classList.toggle('mobile-view', isMobileView);
+    aspectRatioToggle.textContent = isMobileView ? '📱' : '🖥️';
+    localStorage.setItem('isMobileView', isMobileView);
+    adjustTimerPosition();
+  });
+
+  rightPaneToggle.addEventListener('click', () => {
+    rightPane.classList.toggle('open');
+    rightPaneToggle.textContent = rightPane.classList.contains('open') ? 'Close' : 'Options';
+    adjustTimerPosition();
+  });
+
+  toggleInputContainer.addEventListener('click', () => {
+    inputContainer.classList.toggle('hidden');
+  });
+
+  function adjustTimerPosition() {
+    const timerGui = document.querySelector('.timer-gui');
+    if (timerGui) {
+      timerGui.classList.toggle('right-pane-open', rightPane.classList.contains('open'));
+    }
+  }
+
+  function setupDragAndDrop() {
+    const todoItems = document.querySelectorAll('.todo-item');
+    todoItems.forEach(item => {
+      item.addEventListener('dragstart', dragStart);
+      item.addEventListener('dragover', dragOver);
+      item.addEventListener('drop', drop);
+    });
+  }
+
+  function dragStart(e) {
+    e.dataTransfer.setData('text/plain', e.target.dataset.index);
+  }
+
+  function dragOver(e) {
+    e.preventDefault();
+  }
+
+  function drop(e) {
+    e.preventDefault();
+    const draggedIndex = parseInt(e.dataTransfer.getData('text'));
+    const targetIndex = parseInt(e.target.closest('.todo-item').dataset.index);
+    
+    if (draggedIndex !== targetIndex) {
+      const [removed] = todos.splice(draggedIndex, 1);
+      todos.splice(targetIndex, 0, removed);
+      saveTodos();
+      renderTodos();
+    }
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      tabContents.forEach(content => content.style.display = 'none');
+      document.getElementById(`${tab.dataset.tab}-tasks`).style.display = 'block';
+    });
+  });
+
+  function scheduleNotification(todo) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const now = new Date();
+      const scheduledTime = new Date(todo.date + 'T' + todo.scheduleTime);
+      const timeUntilNotification = scheduledTime.getTime() - now.getTime();
+
+      if (timeUntilNotification > 0) {
+        setTimeout(() => {
+          new Notification('Task Reminder', {
+            body: `It's time for your task: ${todo.text}`,
+            icon: 'path/to/icon.png'
+          });
+        }, timeUntilNotification);
+      }
+    }
+  }
+
+  function checkForScheduledTasks() {
+    const now = new Date();
+    todos.forEach(todo => {
+      if (todo.scheduleTime && !todo.completed) {
+        const scheduledTime = new Date(todo.date + 'T' + todo.scheduleTime);
+        if (scheduledTime <= now) {
+          scheduleNotification(todo);
+        }
+      }
+    });
+  }
+
+  function updateTaskStatistics() {
+    const today = new Date().toISOString().split('T')[0];
+    let totalTimeRemaining = 0;
+    let totalTimeWorked = 0;
+    let timeWithoutBreak = 0;
+
+    todos.forEach(todo => {
+      if (!todo.completed && todo.date === today) {
+        totalTimeRemaining += todo.time;
+      }
+      if (todo.completed && todo.date === today) {
+        totalTimeWorked += todo.timeTaken;
+      }
+    });
+
+    if (activeTimer) {
+      const currentTaskTime = Math.floor((Date.now() - startTime) / 60000);
+      totalTimeWorked += currentTaskTime;
+      timeWithoutBreak = currentTaskTime;
+    } else {
+      timeWithoutBreak = Math.floor((Date.now() - lastBreakTime) / 60000);
+    }
+
+    totalTimeRemainingSpan.textContent = `${totalTimeRemaining} min`;
+    totalTimeWorkedSpan.textContent = `${totalTimeWorked} min`;
+    timeWithoutBreakSpan.textContent = `${timeWithoutBreak} min`;
+  }
+
+  function updateEisenhowerMatrix() {
+    const matrix = {
+      'urgent-important': 0,
+      'not-urgent-important': 0,
+      'urgent-not-important': 0,
+      'not-urgent-not-important': 0
+    };
+
+    todos.forEach(todo => {
+      if (!todo.completed) {
+        const urgent = todo.priority === 'urgent';
+        const important = todo.priority === 'important';
+        if (urgent && important) matrix['urgent-important']++;
+        else if (!urgent && important) matrix['not-urgent-important']++;
+        else if (urgent && !important) matrix['urgent-not-important']++;
+        else matrix['not-urgent-not-important']++;
+      }
+    });
+
+    document.getElementById('urgent-important').querySelector('p').textContent = matrix['urgent-important'];
+    document.getElementById('not-urgent-important').querySelector('p').textContent = matrix['not-urgent-important'];
+    document.getElementById('urgent-not-important').querySelector('p').textContent = matrix['urgent-not-important'];
+    document.getElementById('not-urgent-not-important').querySelector('p').textContent = matrix['not-urgent-not-important'];
+  }
+
+  eisenhowerMatrixToggle.addEventListener('click', () => {
+    eisenhowerMatrix.classList.toggle('show');
+  });
+
+  visualizeBtn.addEventListener('click', () => {
+    visualizationContainer.style.display = visualizationContainer.style.display === 'none' ? 'block' : 'none';
+    if (visualizationContainer.style.display === 'block') {
+      renderCharts();
+    }
+  });
+
+  function renderCharts() {
+    renderBarChart();
+    renderPieChart();
+    renderProductivityChart();
+  }
+
+  function renderBarChart() {
+    const ctx = document.getElementById('bar-chart').getContext('2d');
+    const tasksByPriority = {
+      'urgent': 0,
+      'not urgent': 0,
+      'important': 0,
+      'less important': 0
+    };
+
+    todos.forEach(todo => {
+      if (!todo.completed) {
+        tasksByPriority[todo.priority]++;
+      }
+    });
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(tasksByPriority),
+        datasets: [{
+          label: '# of Tasks',
+          data: Object.values(tasksByPriority),
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)'
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  }
+
+  function renderPieChart() {
+    const ctx = document.getElementById('pie-chart').getContext('2d');
+    const completedTasks = todos.filter(todo => todo.completed).length;
+    const incompleteTasks = todos.length - completedTasks;
+
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Completed', 'Incomplete'],
+        datasets: [{
+          data: [completedTasks, incompleteTasks],
+          backgroundColor: [
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(255, 99, 132, 0.2)'
+          ],
+          borderColor: [
+            'rgba(75, 192, 192, 1)',
+            'rgba(255, 99, 132, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  }
+
+  function renderProductivityChart() {
+    const ctx = document.getElementById('productivity-chart').getContext('2d');
+    const today = new Date().toISOString().split('T')[0];
+    const productivityScores = [];
+    const labels = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate()
+ - i);
+      const dateString = date.toISOString().split('T')[0];
+      labels.push(dateString);
+
+      const completedTasksForDay = todos.filter(todo => todo.completed && todo.date === dateString);
+      const totalTimeTaken = completedTasksForDay.reduce((sum, todo) => sum + todo.timeTaken, 0);
+      const totalTimeAllocated = completedTasksForDay.reduce((sum, todo) => sum + todo.time, 0);
+      
+      const productivityScore = totalTimeAllocated > 0 ? (totalTimeTaken / totalTimeAllocated) * 100 : 0;
+      productivityScores.push(productivityScore);
+    }
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Productivity Score',
+          data: productivityScores,
+          fill: false,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100
+          }
+        }
+      }
+    });
+  }
+
+  // Request notification permission
+  if ('Notification' in window) {
+    Notification.requestPermission();
+  }
+
+  // Check for scheduled tasks every minute
+  setInterval(checkForScheduledTasks, 60000);
+
+  // Initial setup
+  renderTodos();
+  document.body.classList.toggle('dark-mode', isDarkMode);
+  appContainer.classList.toggle('mobile-view', isMobileView);
+  aspectRatioToggle.textContent = isMobileView ? '📱' : '🖥️';
+});
+</script>
+</body>
+</html>
